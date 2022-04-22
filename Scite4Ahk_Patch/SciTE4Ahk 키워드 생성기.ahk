@@ -1,5 +1,5 @@
 ;~ ##################################################
-;~ Developed by ÀÜ±º
+;~ Developed by ì”êµ°
 ;~ ##################################################
 
 #NoEnv
@@ -13,7 +13,7 @@ SetControlDelay, -1
 SetTitleMatchMode, 2
 
 ;~ ##################################################
-;~ °æ·Î ¹× ¼³Á¤ÆÄÀÏ È®ÀÎ
+;~ ê²½ë¡œ ë° ì„¤ì •íŒŒì¼ í™•ì¸
 ;~ ##################################################
 
 Base_Path := A_MyDocuments "\AutoHotkey\SciTE"
@@ -26,7 +26,7 @@ Loop
 	else
 	{
 		MsgState := false
-		MsgBox, 17, Error!, °æ·Î¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!`n`nÈ®ÀÎÀ» ´­·¯¼­ SciTE Æú´õ¸¦ Á÷Á¢ ¼±ÅÃÇØÁÖ¼¼¿ä.`n±âº» °æ·Î´Â ³» ¹®¼­\AutoHotkey\SciTE ÀÔ´Ï´Ù.`n`nÃë¼Ò¸¦ ´©¸£¸é ÇÁ·Î±×·¥ÀÌ Á¾·áµË´Ï´Ù.
+		MsgBox, 17, Error!, ê²½ë¡œë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤!`n`ní™•ì¸ì„ ëˆŒëŸ¬ì„œ SciTE í´ë”ë¥¼ ì§ì ‘ ì„ íƒí•´ì£¼ì„¸ìš”.`nê¸°ë³¸ ê²½ë¡œëŠ” ë‚´ ë¬¸ì„œ\AutoHotkey\SciTE ì…ë‹ˆë‹¤.`n`nì·¨ì†Œë¥¼ ëˆ„ë¥´ë©´ í”„ë¡œê·¸ë¨ì´ ì¢…ë£Œë©ë‹ˆë‹¤.
 		IfMsgBox, OK
 			MsgState := true
 		if (!MsgState)
@@ -77,26 +77,26 @@ Loop, 7
 }
 
 ;~ ##################################################
-;~ Gui ¼³Á¤
+;~ Gui ì„¤ì •
 ;~ ##################################################
 
 Gui, Margin, 10, 10
-Gui, Add, Text, xm , Å°¿öµå :	ex) zfill
+Gui, Add, Text, xm , í‚¤ì›Œë“œ :	ex) zfill
 Gui, Add, Edit, w400 vKeyword , 
-Gui, Add, Text, , ÅøÆÁ :	ex) (Number [, Length = 3])
+Gui, Add, Text, , íˆ´íŒ :	ex) (Number [, Length = 3])
 Gui, Add, Edit, w400 h50 WantTab t8 vExplan , 
-Gui, Add, Button, w100 h30 gPreview , ¹Ì¸®º¸±â
-Gui, Add, Button, x+10 yp wp hp gApply , Àû¿ë
-Gui, Add, Button, x310 yp wp hp gCancel , Ãë¼Ò
-Gui, Add, Radio, x+10 ym w80 vType , ÄÁÆ®·Ñ
-Gui, Add, Radio, wp y+8 , ¸í·É
-Gui, Add, Radio, wp y+8 Checked , ÇÔ¼ö
-Gui, Add, Radio, wp y+8 , Áö½Ã¹®
-Gui, Add, Radio, wp y+8 , Å°, ¹öÆ°
-Gui, Add, Radio, wp y+8 , ³»Àåº¯¼ö
-Gui, Add, Radio, wp y+8 , Å°¿öµå
+Gui, Add, Button, w100 h30 gPreview , ë¯¸ë¦¬ë³´ê¸°
+Gui, Add, Button, x+10 yp wp hp gApply , ì ìš©
+Gui, Add, Button, x310 yp wp hp gCancel , ì·¨ì†Œ
+Gui, Add, Radio, x+10 ym w80 vType , ì»¨íŠ¸ë¡¤
+Gui, Add, Radio, wp y+8 , ëª…ë ¹
+Gui, Add, Radio, wp y+8 Checked , í•¨ìˆ˜
+Gui, Add, Radio, wp y+8 , ì§€ì‹œë¬¸
+Gui, Add, Radio, wp y+8 , í‚¤, ë²„íŠ¼
+Gui, Add, Radio, wp y+8 , ë‚´ì¥ë³€ìˆ˜
+Gui, Add, Radio, wp y+8 , í‚¤ì›Œë“œ
 Gui, Add, Button, wp h22 gHelp , Help
-Gui, Add, Text, x225 y150 w80 Center, Developed by`nÀÜ±º
+Gui, Add, Text, x225 y150 w80 Center, Developed by`nì”êµ°
 
 Api_List := []
 Loop, % Backup_Path "\*.api"
@@ -118,17 +118,17 @@ if (Api_List.Length())
 }
 else
 {
-	Menu, RollBack_Items, Add, ¹é¾÷ÆÄÀÏ ¾øÀ½, Sel_File
-	Menu, RollBack_Items, Disable, ¹é¾÷ÆÄÀÏ ¾øÀ½
+	Menu, RollBack_Items, Add, ë°±ì—…íŒŒì¼ ì—†ìŒ, Sel_File
+	Menu, RollBack_Items, Disable, ë°±ì—…íŒŒì¼ ì—†ìŒ
 }
-Menu, RollBack_Menu, Add, ¼±ÅÃ ÆÄÀÏ·Î º¹¿ø, :RollBack_Items
-Menu, RollBack_Menu, Add, ÃÖ±Ù ÆÄÀÏ·Î º¹¿ø, Sel_Lasted
+Menu, RollBack_Menu, Add, ì„ íƒ íŒŒì¼ë¡œ ë³µì›, :RollBack_Items
+Menu, RollBack_Menu, Add, ìµœê·¼ íŒŒì¼ë¡œ ë³µì›, Sel_Lasted
 if (!Api_List.Length())
-	Menu, RollBack_Menu, Disable, ÃÖ±Ù ÆÄÀÏ·Î º¹¿ø
-Menu, Menubar, Add, º¹¿ø, :RollBack_Menu
+	Menu, RollBack_Menu, Disable, ìµœê·¼ íŒŒì¼ë¡œ ë³µì›
+Menu, Menubar, Add, ë³µì›, :RollBack_Menu
 Gui, Menu, Menubar
 
-Gui, Show, , SciTe4Ahk Å°¿öµå »ı¼º±â
+Gui, Show, , SciTe4Ahk í‚¤ì›Œë“œ ìƒì„±ê¸°
 State := false
 return
 
@@ -138,7 +138,7 @@ ExitApp
 return
 
 ;~ ##################################################
-;~ ¹Ì¸®º¸±â¿ë Gui ¼³Á¤
+;~ ë¯¸ë¦¬ë³´ê¸°ìš© Gui ì„¤ì •
 ;~ ##################################################
 
 Preview_Gui:
@@ -202,7 +202,7 @@ ToolTip, % Keyword StrReplace(Explan, "`t", "    "), 20, 36
 return
 
 ;~ ##################################################
-;~ ¸Ş´º ¹öÆ° ÀÛ¿ë
+;~ ë©”ë‰´ ë²„íŠ¼ ì‘ìš©
 ;~ ##################################################
 
 Sel_File:
@@ -220,15 +220,15 @@ RollBack:
 MsgState := false
 if not (isFile(Backup_Path "\" Target_File ".api") && isFile(Backup_Path "\" Target_File ".properties"))
 {
-	MsgBox, 16, Error!, º¹¿ø¿¡ ½ÇÆĞÇÏ¿´½À´Ï´Ù.`n¼±ÅÃ Å°¿öµåÀÇ api ÆÄÀÏ È¤Àº properties ÆÄÀÏÀÌ ¾ø½À´Ï´Ù.
+	MsgBox, 16, Error!, ë³µì›ì— ì‹¤íŒ¨í•˜ì˜€ìŠµë‹ˆë‹¤.`nì„ íƒ í‚¤ì›Œë“œì˜ api íŒŒì¼ í˜¹ì€ properties íŒŒì¼ì´ ì—†ìŠµë‹ˆë‹¤.
 	return
 }
-MsgBox, 36, Question, % SubStr(Target_File, 16) " Å°¿öµå¸¦ Ãß°¡ÇÏ±â ÀüÀ¸·Î º¹¿øÇÏ°Ú½À´Ï±î?"
+MsgBox, 36, Question, % SubStr(Target_File, 16) " í‚¤ì›Œë“œë¥¼ ì¶”ê°€í•˜ê¸° ì „ìœ¼ë¡œ ë³µì›í•˜ê² ìŠµë‹ˆê¹Œ?"
 IfMsgBox, Yes
 {
 	if (Sel_State)
 	{
-		MsgBox, 52, Question, ÇØ´ç Å°¿öµåº¸´Ù ³ªÁß¿¡ Ãß°¡µÈ Å°¿öµå´Â ¸ğµÎ Á¦°ÅµË´Ï´Ù.`nÁ¤¸» º¹¿øÇÏ°Ú½À´Ï±î?
+		MsgBox, 52, Question, í•´ë‹¹ í‚¤ì›Œë“œë³´ë‹¤ ë‚˜ì¤‘ì— ì¶”ê°€ëœ í‚¤ì›Œë“œëŠ” ëª¨ë‘ ì œê±°ë©ë‹ˆë‹¤.`nì •ë§ ë³µì›í•˜ê² ìŠµë‹ˆê¹Œ?
 		IfMsgBox, Yes
 			MsgState := true
 		if (!MsgState)
@@ -248,14 +248,14 @@ IfMsgBox, Yes
 			}
 		}
 	}
-	MsgBox, ¼³Á¤ÀÌ º¹¿øµÇ¾ú½À´Ï´Ù.
+	MsgBox, ì„¤ì •ì´ ë³µì›ë˜ì—ˆìŠµë‹ˆë‹¤.
 	Reload
 }
 Target_File := ""
 return
 
 ;~ ##################################################
-;~ Gui ¹öÆ° ÀÛ¿ë
+;~ Gui ë²„íŠ¼ ì‘ìš©
 ;~ ##################################################
 
 Preview:
@@ -282,12 +282,12 @@ Gui, Submit, Nohide
 MsgState := false
 if (!Keyword)
 {
-	MsgBox, Å°¿öµå°¡ ÀÔ·ÂµÇÁö ¾Ê¾Ò½À´Ï´Ù.
+	MsgBox, í‚¤ì›Œë“œê°€ ì…ë ¥ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.
 	return
 }
 if (!Explan)
 {
-	MsgBox, 52, Caution!, ¼³¸íÀÌ ¾ø½À´Ï´Ù.`nÀÌ´ë·Î ÀúÀåÇÏ½Ã°Ú½À´Ï±î?
+	MsgBox, 52, Caution!, ì„¤ëª…ì´ ì—†ìŠµë‹ˆë‹¤.`nì´ëŒ€ë¡œ ì €ì¥í•˜ì‹œê² ìŠµë‹ˆê¹Œ?
 	IfMsgBox, Yes
 		MsgState := true
 	if (!MsgState)
@@ -304,7 +304,7 @@ Prop_txt := StrReplace(Prop_txt, "user.keywords" Type "=\`r`n", "user.keywords" 
 FileMove, % Prop_File, % Backup_Path "\" Now "_" Keyword ".properties"
 FileAppend, % Prop_txt, % Prop_File
 WinGet, var, , SciTE4AutoHotkey
-MsgBox, % var ? "Àû¿ëµÇ¾ú½À´Ï´Ù.`n¿¡µğÅÍ Àç½ÇÇà½Ã Àû¿ëµË´Ï´Ù." : "Àû¿ëµÇ¾ú½À´Ï´Ù."
+MsgBox, % var ? "ì ìš©ë˜ì—ˆìŠµë‹ˆë‹¤.`nì—ë””í„° ì¬ì‹¤í–‰ì‹œ ì ìš©ë©ë‹ˆë‹¤." : "ì ìš©ë˜ì—ˆìŠµë‹ˆë‹¤."
 Reload
 return
 
@@ -315,21 +315,21 @@ else
 {
 	TipText =
 	(
-ÄÁÆ®·Ñ : return, break, ExitApp µî
+ì»¨íŠ¸ë¡¤ : return, break, ExitApp ë“±
 
-¸í·É : MsgBox, GuiControl, FileAppend µî
+ëª…ë ¹ : MsgBox, GuiControl, FileAppend ë“±
 
-ÇÔ¼ö : InStr(), RegExMatch(), ComObjCreate() µî
+í•¨ìˆ˜ : InStr(), RegExMatch(), ComObjCreate() ë“±
 
-Áö½Ã¹® : #If, #Include, #NoEnv µî
+ì§€ì‹œë¬¸ : #If, #Include, #NoEnv ë“±
 
-Å°, ¹öÆ° : LButton, F12, PGDN µî
+í‚¤, ë²„íŠ¼ : LButton, F12, PGDN ë“±
 
-³»Àåº¯¼ö : A_Index, A_LoopField, A_WorkingDir µî
+ë‚´ì¥ë³€ìˆ˜ : A_Index, A_LoopField, A_WorkingDir ë“±
 
-Å°¿öµå : ahk_id, text, Checked µî
+í‚¤ì›Œë“œ : ahk_id, text, Checked ë“±
 
-** ¹Ì¸®º¸±â¸¦ ´©¸£¸é ½ºÅ¸ÀÏÀ» È®ÀÎÇÒ ¼ö ÀÖ½À´Ï´Ù **
+** ë¯¸ë¦¬ë³´ê¸°ë¥¼ ëˆ„ë¥´ë©´ ìŠ¤íƒ€ì¼ì„ í™•ì¸í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤ **
 	)
 	ToolTip, % TipText, 150, 20
 }
@@ -346,7 +346,7 @@ if (State)
 return
 
 ;~ ##################################################
-;~ »ç¿ëÀÚ Á¤ÀÇ ÇÔ¼ö
+;~ ì‚¬ìš©ì ì •ì˜ í•¨ìˆ˜
 ;~ ##################################################
 
 isFile(path) {
@@ -363,11 +363,11 @@ Parse_Side(Index, txt) {
 	switch Index
 	{
 		case 2, 5:
-			pos := RegExMatch(txt, "(style\.ahk1\.4|s4ahk\.style\.operator)=(.*)", Match) ; 2=¸í·É , || 5=¹öÆ° ::
+			pos := RegExMatch(txt, "(style\.ahk1\.4|s4ahk\.style\.operator)=(.*)", Match) ; 2=ëª…ë ¹ , || 5=ë²„íŠ¼ ::
 		case 3:
-			pos := RegExMatch(txt, "(style\.ahk1\.5|s4ahk\.style\.operator)=(.*)", Match) ; ÇÔ¼ö ()
+			pos := RegExMatch(txt, "(style\.ahk1\.5|s4ahk\.style\.operator)=(.*)", Match) ; í•¨ìˆ˜ ()
 		case 6:
-			pos := RegExMatch(txt, "(style\.ahk1\.9|s4ahk\.style\.operator)=(.*)", Match) ; ³»Àåº¯¼ö %%
+			pos := RegExMatch(txt, "(style\.ahk1\.9|s4ahk\.style\.operator)=(.*)", Match) ; ë‚´ì¥ë³€ìˆ˜ %%
 			if (InStr(Match2, "$(style.ahk1.8)"))
 				Match2 := StrReplace(Match2, "$(style.ahk1.8)", RegExMatch(txt, "style\.ahk1\.8=(.*)", SubMatch) ? SubMatch1 : "")
 	}
