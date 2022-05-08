@@ -300,7 +300,7 @@ FileCopy, % Api_File, % Backup_Path "\" Now "_" Keyword ".api"
 Api_txt := Keyword . StrReplace(StrReplace(Explan, "`t", "    "), "`n", "\n") . "`n"
 FileAppend, % Api_txt, % Api_File
 FileRead, Prop_txt, % Prop_File
-Prop_txt := StrReplace(Prop_txt, "user.keywords" Type "=\`r`n", "user.keywords" Type "=\`r`n" Format("{:L)", Keyword) " ")
+Prop_txt := StrReplace(Prop_txt, "user.keywords" Type "=\`r`n", "user.keywords" Type "=\`r`n" Format("{:L}", Keyword) " ")
 FileMove, % Prop_File, % Backup_Path "\" Now "_" Keyword ".properties"
 FileAppend, % Prop_txt, % Prop_File
 WinGet, var, , SciTE4AutoHotkey
