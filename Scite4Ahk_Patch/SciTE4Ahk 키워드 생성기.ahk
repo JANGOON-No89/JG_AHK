@@ -16,6 +16,7 @@ SetTitleMatchMode, 2
 ;~ 경로 및 설정파일 확인
 ;~ ##################################################
 
+FileEncoding, UTF-8
 Base_Path := A_MyDocuments "\AutoHotkey\SciTE"
 if (!isFile(Base_Path "\_config.properties"))
 	Base_Path := A_ScriptDir
