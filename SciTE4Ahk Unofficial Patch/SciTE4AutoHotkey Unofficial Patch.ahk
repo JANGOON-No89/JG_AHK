@@ -28,7 +28,6 @@ FileInstall, UserHome\Autorun.ahk, %A_Temp%\SciTE_UnofficalPatch\UserHome\Autoru
 FileInstall, UserHome\define_func.properties, %A_Temp%\SciTE_UnofficalPatch\UserHome\define_func.properties, 1
 FileInstall, UserHome\$PATCHVER, %A_Temp%\SciTE_UnofficalPatch\UserHome\PATCHVER, 1
 FileInstall, UserHome\SciTEUser.properties, %A_Temp%\SciTE_UnofficalPatch\UserHome\SciTEUser.properties, 1
-FileInstall, UserHome\template.ahk, %A_Temp%\SciTE_UnofficalPatch\UserHome\template.ahk, 1
 FileInstall, UserHome\UserLuaScript.lua, %A_Temp%\SciTE_UnofficalPatch\UserHome\UserLuaScript.lua, 1
 FileInstall, UserHome\UserToolbar.properties, %A_Temp%\SciTE_UnofficalPatch\UserHome\UserToolbar.properties, 1
 
