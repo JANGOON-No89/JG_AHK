@@ -31,6 +31,7 @@ if (!A_IsAdmin)
 
 SciteUserHome = %1%
 SciteDefaultHome = %2%
+index := 0
 
 Loop, Files, % SciteDefaultHome "\PatchBackup\*", R
 {
@@ -41,16 +42,22 @@ Loop, Files, % SciteDefaultHome "\PatchBackup\*", R
 		DivPos := InStr(A_LoopFileFullPath, "LocalHome")
 		, Target := StrReplace(A_LoopFileFullPath, SubStr(A_LoopFileFullPath, 1, DivPos + 8), SciteDefaultHome)
 	FileCopy, % A_LoopFileFullPath, % Target, 1
-	if (!ErrorLevel)
-		FileDelete, % A_LoopFileFullPath
+	if (ErrorLevel != 0)
+		index++
 }
 
-index := 0
-Loop, Files, % SciteDefaultHome "\PatchBackup\*", R
-	index++
-
 if (index = 0)
-	FileRemoveDir, % SciteDefaultHome "\PatchBackup", 1
-
+{
+	MsgBox, % "복원이 완료되었습니다.`n에디터를 재실행하면 적용됩니다."
+	FileRemoveDir, % SciteDefaultHome "\PatchBackup"
+}
+else
+{
+	MsgBox, % "일부 파일의 복원에 실패했습니다.`n확인을 눌러 수동으로 복원해주십시오.`n`n"
+						. "LocalHome폴더의 기본 경로는 C:\Program Files\AutoHotkey\SciTE\ 이며,`n
+						. "UserHome폴더의 기본 경로는 내 문서\AutoHotkey\SciTE\ 입니다."
+	Run, % SciteDefaultHome "\PatchBackup"
+}
+	
 ExitApp
 
