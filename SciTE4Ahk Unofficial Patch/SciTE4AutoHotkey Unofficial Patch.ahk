@@ -48,17 +48,6 @@ FileInstall, UserHome\tools\RestoreManager.ahk, %A_Temp%\SciTE_UnofficalPatch\Us
 FileInstall, UserHome\tools\RestoreOrigin.ahk, %A_Temp%\SciTE_UnofficalPatch\UserHome\tools\RestoreOrigin.ahk, 1
 FileInstall, UserHome\tools\StyleEditor.exe, %A_Temp%\SciTE_UnofficalPatch\UserHome\tools\StyleEditor.exe, 1
 
-FileCreateDir, %SciteDefaultHome%\PatchBackup\LocalHome
-FileCreateDir, %SciteDefaultHome%\PatchBackup\UserHome\backup
-FileCreateDir, %SciteDefaultHome%\PatchBackup\UserHome\Settings
-FileCreateDir, %SciteDefaultHome%\PatchBackup\UserHome\tools\Lib
-FileCreateDir, %SciteDefaultHome%\PatchBackup\UserHome\tools\Banner
-
-FileCreateDir, %SciteUserHome%\backup
-FileCreateDir, %SciteUserHome%\Settings
-FileCreateDir, %SciteUserHome%\tools\Lib
-FileCreateDir, %SciteUserHome%\tools\Banner
-
 paramCheck = %1%
 if (A_IsAdmin && paramCheck = "")
 {
@@ -112,6 +101,17 @@ UsersHLColor = %4%
 UsersHLTrans = %5%
 SciteBaseStyle = %6%
 SciteTextStyle = %7%
+
+FileCreateDir, %SciteDefaultHome%\PatchBackup\LocalHome
+FileCreateDir, %SciteDefaultHome%\PatchBackup\UserHome\backup
+FileCreateDir, %SciteDefaultHome%\PatchBackup\UserHome\Settings
+FileCreateDir, %SciteDefaultHome%\PatchBackup\UserHome\tools\Lib
+FileCreateDir, %SciteDefaultHome%\PatchBackup\UserHome\tools\Banner
+
+FileCreateDir, %SciteUserHome%\backup
+FileCreateDir, %SciteUserHome%\Settings
+FileCreateDir, %SciteUserHome%\tools\Lib
+FileCreateDir, %SciteUserHome%\tools\Banner
 
 CountURL := "http://jgstyler.ivyro.net/unoffpatch.php"
 if (!FileExist(SciteUserHome "\$PATCHVER"))
