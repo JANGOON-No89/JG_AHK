@@ -54,7 +54,7 @@ if (index = 0)
 else
 {
 	MsgBox, % "일부 파일의 복원에 실패했습니다.`n확인을 눌러 수동으로 복원해주십시오.`n`n"
-						. "LocalHome폴더의 기본 경로는 C:\Program Files\AutoHotkey\SciTE\ 이며,`n
+						. "LocalHome폴더의 기본 경로는 C:\Program Files\AutoHotkey\SciTE\ 이며,`n"
 						. "UserHome폴더의 기본 경로는 내 문서\AutoHotkey\SciTE\ 입니다."
 	Run, % SciteDefaultHome "\PatchBackup"
 }
