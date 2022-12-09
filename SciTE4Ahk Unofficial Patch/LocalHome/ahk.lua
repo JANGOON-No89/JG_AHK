@@ -160,20 +160,25 @@ function OnChar(curChar)
 			local curLine = editor:GetLine(editor:LineFromPosition(curPos))
 			local prevLine = editor:GetLine(editor:LineFromPosition(curPos) - 1)
 			if #Selected_Text == 0 then
-				if string.find(curLine, ":=%s*{%s*$") then
-					editor:AddText("}")
-				else
-					if isFunctionAllowBraces(prevLine, curLine) then
-						editor:NewLine() editor:AddText("/* write your calltip here") editor:NewLine()
-						editor:NewLine() editor:AddText("*/") editor:NewLine() curPos = editor.CurrentPos
-						editor:NewLine() editor:Home() editor:BackTab() editor:AddText("}") Func_Set()
-					elseif isStartBlockStatement(curLine) or isStartBlockStatement(prevLine .. curLine) then
+				if isFunctionAllowBraces(prevLine, curLine) then
+					editor:NewLine() editor:AddText("/* write your calltip here") editor:NewLine()
+					editor:NewLine() editor:AddText("*/") editor:NewLine() curPos = editor.CurrentPos
+					editor:NewLine() editor:Home() editor:BackTab() editor:AddText("}") Func_Set()
+				elseif isStartBlockStatement(curLine) or isStartBlockStatement(prevLine .. curLine) then
+					if isStartBlockStatement(curLine) == false and string.find(curLine, "^%s*{%s*$") == nil then
+						editor:AddText("}")
+					else
 						editor:NewLine() curPos = editor.CurrentPos editor:NewLine()
 						if string.find(curLine, "^%s*{%s*$") then
+							editor:BackTab()
+						elseif curPos - editor:PositionFromLine(editor:LineFromPosition(curPos))
+								== editor.CurrentPos - editor:PositionFromLine(editor:LineFromPosition(editor.CurrentPos)) then
 							editor:BackTab()
 						end
 						editor:AddText("}")
 					end
+				else
+					editor:AddText("}")
 				end
 				editor:GotoPos(curPos)
 			else
@@ -466,7 +471,6 @@ function Func_Set()
 	for func, param, command in string.gmatch(text, ptrn) do
 		if string.gsub(func, "[wW][hH][iI][lL][eE]", "") ~= "" and keyInTable(Define_Funcs, func) == false then
 			if string.find(command, "^%s*/%*") then
-				-- local explan = string.gsub(string.match(command, "^%s*/%*[^\r\n]*[\r\n]*(.*)[\r\n]*%*/"), "%s*$", "")
 				local explan = string.gsub(string.match(command, "^%s*/%*[^\r\n]*[\r\n]*(.*)[\r\n]*%*/") or "", "%s*$", "")
 				local indent = string.match(command, "^%s*\r?\n(%s*)")
 				explan = string.gsub(string.gsub(string.gsub(explan, "^" .. indent, ""), "\n" .. indent, "\n"), "	", "    ")
@@ -971,7 +975,7 @@ function OnBeforeSave(filename)
 		local bkpath = props['path.backup'] .. "\\"
 		if not os.rename(filename, bkpath .. bkfile) then
 			local file = io.open(filename, "r")
-			if file then
+			if file ~= nil then
 				local txt = file:read("*a")
 				file = io.open(bkpath .. bkfile, "w")
 				file:write(txt)

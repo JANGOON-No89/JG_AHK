@@ -116,7 +116,7 @@ Gui, Submit, Nohide
 ControlGetFocus, var
 if var in Edit1,Edit2,Edit3,Edit4
 {
-	if (SubStr(%A_GuiControl%, 1, 1) = 0)
+	if (%A_GuiControl% != 0 && SubStr(%A_GuiControl%, 1, 1) = 0)
 	{
 		GuiControl, , % %A_GuiControl%, % LTrim(%A_GuiControl%, "0")
 		SendInput, {End}

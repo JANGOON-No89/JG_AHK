@@ -7,9 +7,10 @@
 #NoTrayIcon
 SetWorkingDir, %A_ScriptDir%
 
-Run, tools\PropUpdate.ahk
-
-Run, tools\OldBakRemover.ahk
-
 if (!FileExist(A_ScriptDir "\tools\$UPDATE"))
+{
+	Run, tools\PropUpdate.ahk
+	Run, tools\AutoUpdate.ahk
+	Run, tools\OldBakRemover.ahk
 	Run, tools\PatchLog.ahk
+}

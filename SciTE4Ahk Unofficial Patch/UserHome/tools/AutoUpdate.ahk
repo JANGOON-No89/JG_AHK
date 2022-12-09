@@ -20,16 +20,13 @@ CheckFile := scite.UserDir "\tools\$UPDATE"
 if (FileExist(CheckFile))
 {
 	FileRead, val, % CheckFile
-	if (val = 0)
-	{
-		MsgBox, 52, Unofficial Patch Update, % "이전에 업데이트를 다운로드 하였지만`, 완료되지 않았습니다.`n"
-																			. "다시 업데이트를 하시겠습니까?`n`n"
-																			. "업데이트를 완료하였음에도 이 메세지가 반복될 경우 제작자에게 문의 바랍니다."
-		IfMsgBox, Yes
-			Run, % scite.UserDir "\tools\SciTE4AutoHotkey Unofficial Patch.exe"
-		ExitApp
-	}
-	else
+	MsgBox, 52, Unofficial Patch Update, % "이전에 업데이트를 " . (val = 0 ? "실행" : "다운로드") . "하였지만`, 완료되지 않았습니다.`n"
+																		. "다시 업데이트를 하시겠습니까?`n`n"
+																		. (val = 1 ? "업데이트를 진행중이라면 '아니요'를 눌러주세요.`n" : "")
+																		. "업데이트를 완료하였음에도 이 메세지가 반복될 경우 제작자에게 문의 바랍니다."
+	IfMsgBox, Yes
+		Run, % scite.UserDir "\tools\SciTE4AutoHotkey Unofficial Patch.exe"
+	ExitApp
 }
 
 if (scite.ResolveProp("patch.updates") = 1)

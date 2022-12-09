@@ -129,6 +129,16 @@ Ctrl + Shift + Z 키로도 동작하게 되었습니다.</pre>
 	<pre>일부 구문에서 문맥을 잘못 감지하여 문맥에 맞지않는 줄나눔 혹은 들여쓰기가 적용되는 현상이 발생합니다.</pre>
 </ul>
 <p></p>
+<div class="title">업데이트</div>
+<ul>
+	<li>v0.1</li>
+	<pre>디버그용 최초 배포 버전</pre>
+	<li>v0.11</li>
+	<pre>- 패치 프로그램과 패치로 추가되는 기능들의 일부 오류 수정
+- 자동 들여쓰기 문맥 감지 기능 사아아알짝 개선
+- 자동 백업시 오류메세지 나타나던 증상 해결 (피드백 패치)</pre>
+</ul>
+<p></p>
 <div class="title"></div>
 </html>
 )
@@ -141,7 +151,7 @@ wb.Navigate("about:blank")
 while (wb.readyState != 4 || wb.busy)
 	Sleep, -1
 wb.document.write(PatchLog)
-Gui, Add, Link, w310, 자세한 사용법은 <a href="https://jg-no89.tistory.com">제작자 블로그</a>에서 확인할 수 있습니다.
+Gui, Add, Link, w310, 자세한 사용법은 <a href="https://jg-no89.tistory.com/4">제작자 블로그</a>에서 확인할 수 있습니다.
 Gui, Add, Checkbox, % "x470 yp w160 Right vShowNext " . (Auto = 1 ? "Checked" : ""), 다음 실행부터 보지 않음
 Gui, Show, , PatchLog
 OnMessage(0x200, "Hover")
