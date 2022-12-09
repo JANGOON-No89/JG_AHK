@@ -614,8 +614,7 @@ class PropStyle
 	}
 }
 
-VerCheck(Scite)
-{
+VerCheck(Scite) {
 	if (Scite.IsPortable || RegExReplace(StrReplace(Scite.Version, "."), "(\d)(\d+)", "$1.$2") > 3.00601)
 	{
 		MsgBox, 16, Patch Error, % "이 패치는 최신버전 or 무설치 버전에서는 사용할 수 없습니다.`n죄송합니다."
@@ -633,7 +632,7 @@ SciteCheck() {
 	return false
 }
 
-AdminCheck(){
+AdminCheck() {
 	for k, v in ["ahk_exe InternalAHK.exe", "ahk_exe SciTE.exe"]
 	{
 		WinGet, a, PID, % v
@@ -644,7 +643,7 @@ AdminCheck(){
 	return false
 }
 
-ProcessAdmin(a){
+ProcessAdmin(a) {
 	if !(b:=DllCall("OpenProcess", "uint", 0x0400, "int", 0, "uint", a, "ptr"))
 		throw Exception("OpenProcessfailed", -1)
 	if !(DllCall("advapi32\OpenProcessToken", "ptr", b, "uint", 0x0008, "ptr*", c))
@@ -654,7 +653,7 @@ ProcessAdmin(a){
 	return d, DllCall("CloseHandle", "ptr", c)&&DllCall("CloseHandle", "ptr", b)
 }
 
-WinGetPosEx(hwnd, byref x := 0, byref y := 0, byref w := 0, byref h := 0){
+WinGetPosEx(hwnd, byref x := 0, byref y := 0, byref w := 0, byref h := 0) {
 	VarSetCapacity(rect, 16)
 	if !DllCall("dwmapi\DwmGetWindowAttribute", "ptr", hwnd, "uint", 9, "ptr", &rect, "uint", 16) {
 		x := NumGet(rect, "int")
@@ -665,14 +664,12 @@ WinGetPosEx(hwnd, byref x := 0, byref y := 0, byref w := 0, byref h := 0){
 	}
 }
 
-MsgMonitor(wParam, lParam)
-{
+MsgMonitor(wParam, lParam) {
 	if (wParam = 0x8004 || wParam = 0x8004) 
 		HookProc("whatever", "whatever", lParam)
 }
 	
-HookProc(hWinEventHook, event, hwnd) 
-{ 
+HookProc(hWinEventHook, event, hwnd) { 
 	global MainGui
 	static pPos := 0
 	IfWinExist, ahk_id %MainGui%
@@ -688,8 +685,7 @@ HookProc(hWinEventHook, event, hwnd)
 	}
 } 
 
-SetWinEventHook(eventMin, eventMax, hmodWinEventProc, lpfnWinEventProc, idProcess, idThread, dwFlags) 
-{ 
+SetWinEventHook(eventMin, eventMax, hmodWinEventProc, lpfnWinEventProc, idProcess, idThread, dwFlags) { 
 	DllCall("CoInitialize", "uint", 0) 
 	return DllCall("SetWinEventHook", "uint", eventMin, "uint", eventMax, "uint", hmodWinEventProc, "uint", lpfnWinEventProc, "uint", idProcess, "uint", idThread, "uint", dwFlags) 
 }
