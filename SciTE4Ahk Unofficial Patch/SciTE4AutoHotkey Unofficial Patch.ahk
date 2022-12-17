@@ -2,8 +2,8 @@
 ; SciTE4AutoHotkey Unofficial Patch
 ; Developed by JANGOON
 ; Developed on 2022.12.02
-; Version : v0.11
-; Update : 2022.12.09
+; Version : v0.12
+; Update : 2022.12.17
 ; Blog : https://jg-no89.tistory.com/
 ; GitHub : https://github.com/JANGOON-No89/JG_AHK
 ;
