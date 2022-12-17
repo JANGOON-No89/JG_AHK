@@ -18,15 +18,27 @@ local savedbk = nil
 -- JANGOON's Unofficial Patch - Global variables
 -- ================================================== --
 
+-- Ignore Styles
+local ignoreStylesTable = {
+	[SCLEX_AHK1] = {SCE_AHK_COMMENTLINE, SCE_AHK_COMMENTBLOCK, SCE_AHK_STRING, SCE_AHK_ERROR, SCE_AHK_ESCAPE},
+	[SCLEX_AHK2] = {SCE_AHK2_COMMENTLINE, SCE_AHK2_COMMENTBLOCK, SCE_AHK2_STRING, SCE_AHK2_ERROR, SCE_AHK2_ESCAPE},
+}
+
+-- Parenthesis Auto Indent
+local NoCalltip = false
+local SetSel = false
+local SelStart = 0
+local SelEnd = 0
+
+-- Avoid errors in OnChar events (Foreign Language)
+local curKey = ""
+
 -- Word Highlight
 local HighlightLine = {}
 local HighlightPos = 0
 
 -- Realtime User Define Function 
 local Define_Funcs = {}
-
--- Auto Indent
-local UndoState = false
 
 -- Auto Complete
 local IGNORE_CASE = true
@@ -75,8 +87,8 @@ end
 function OnUpdateUI()
 	if editor.TextLength == 0 then
 		if props['FilePath'] ~= props['SciteUserHome'] .. "\\template.ahk" then
-			local file, err = io.open(props['SciteUserHome'] .. "/template.ahk", "r")
-			if file then
+			local file = io.open(props['SciteUserHome'] .. "/template.ahk", "r")
+			if file ~= nil then
 				local txt = file:read("*a")
 				if txt ~= "" then editor:SetText(txt) end file:close()
 			end
@@ -120,17 +132,12 @@ end
 -- ====================================== --
 
 function OnChar(curChar)
-	local ignoreStylesTable = {
-		[SCLEX_AHK1] = {SCE_AHK_COMMENTLINE, SCE_AHK_COMMENTBLOCK, SCE_AHK_STRING, SCE_AHK_ERROR, SCE_AHK_ESCAPE},
-		[SCLEX_AHK2] = {SCE_AHK2_COMMENTLINE, SCE_AHK2_COMMENTBLOCK, SCE_AHK2_STRING, SCE_AHK2_ERROR, SCE_AHK2_ESCAPE},
-	}
-	
 	-- This function should only run when the Editor pane is focused.
 	if not editor.Focus then return false end
 	-- This function only works with the AutoHotkey lexer
 	if not InAHKLexer() then return false end
-
-	local ignoreStyles = ignoreStylesTable[editor.Lexer]	
+	
+	local ignoreStyles = ignoreStylesTable[editor.Lexer]
 	local IgnoreChar = {"\n", "{", "}", "(", ")", "[", "]", ",", ".", "=", "'", '"'}
 
 	if isInTable(IgnoreChar, curChar) then
@@ -140,99 +147,27 @@ function OnChar(curChar)
 	if curChar == "\n" then
 		local prevStyle = editor.StyleAt[getPrevLinePos()]
 		if not isInTable(ignoreStyles, prevStyle) then
-			if not UndoState then
-				editor:BeginUndoAction()
-				AutoIndent_OnNewLine()
-				editor:EndUndoAction()
-				return true
-			else
-				return AutoIndent_OnNewLine()
+			return AutoIndent_OnNewLine()
+		end
+	elseif isInTable({"(", "{", "["}, curChar) then
+		if curKey == curChar then
+			editor:Undo()
+			if SetSel then editor:SetSel(SelStart, SelEnd) SetSel=false end
+		end
+	elseif isInTable({")", "}", "]"}, curChar) then
+		if curKey == curChar then
+			local curStyle = editor.StyleAt[editor.CurrentPos]
+			if not isInTable(ignoreStyles, curStyle) then
+				closeBrace(curChar)
 			end
-		end
-	elseif curChar == "{" then
-		if not UndoState then
-			editor:BeginUndoAction()
-		end
-		local curStyle = editor.StyleAt[editor.CurrentPos-2]
-		if not isInTable(ignoreStyles, curStyle) then
-			AutoIndent_OnOpeningBrace()
-			local curPos = editor.CurrentPos
-			local curLine = editor:GetLine(editor:LineFromPosition(curPos))
-			local prevLine = editor:GetLine(editor:LineFromPosition(curPos) - 1)
-			if #Selected_Text == 0 then
-				if isFunctionAllowBraces(prevLine, curLine) then
-					editor:NewLine() editor:AddText("/* write your calltip here") editor:NewLine()
-					editor:NewLine() editor:AddText("*/") editor:NewLine() curPos = editor.CurrentPos
-					editor:NewLine() editor:Home() editor:BackTab() editor:AddText("}") Func_Set()
-				elseif isStartBlockStatement(curLine) or isStartBlockStatement(prevLine .. curLine) then
-					if isStartBlockStatement(curLine) == false and string.find(curLine, "^%s*{%s*$") == nil then
-						editor:AddText("}")
-					else
-						editor:NewLine() curPos = editor.CurrentPos editor:NewLine()
-						if string.find(curLine, "^%s*{%s*$") then
-							editor:BackTab()
-						elseif curPos - editor:PositionFromLine(editor:LineFromPosition(curPos))
-								== editor.CurrentPos - editor:PositionFromLine(editor:LineFromPosition(editor.CurrentPos)) then
-							editor:BackTab()
-						end
-						editor:AddText("}")
-					end
-				else
-					editor:AddText("}")
-				end
-				editor:GotoPos(curPos)
-			else
-				editor:HomeExtend()
-				local BeforeText = editor:GetSelText()
-				if string.find(BeforeText, ":=%s*{$") then
-					editor:GotoPos(editor.Anchor)
-					editor:AddText(Selected_Text .. "}")
-				else
-					Pairing("{", "}")
+			if curChar == "}" then
+				curStyle = editor.StyleAt[editor.CurrentPos-2]
+				if not isInTable(ignoreStyles, curStyle) then
+					AutoIndent_OnClosingBrace()
 				end
 			end
 		end
-		editor:EndUndoAction()
-		UndoState = false
-	elseif curChar == "}" then
-		local curStyle = editor.StyleAt[editor.CurrentPos]
-		if not isInTable(ignoreStyles, curStyle) then
-			closeBrace("{", "}")
-		end
-		curStyle = editor.StyleAt[editor.CurrentPos-2]
-		if not isInTable(ignoreStyles, curStyle) then
-			AutoIndent_OnClosingBrace()
-		end
-	elseif curChar == "(" then
-		local curStyle = editor.StyleAt[editor.CurrentPos-2]
-		if not isInTable(ignoreStyles, curStyle) then
-			Pairing("(", ")")
-			scite.MenuCommand(IDM_SHOWCALLTIP)
-			if editor:CallTipActive() == false then
-				local curPos = editor.CurrentPos - 1
-				local leftPos = editor:WordStartPosition(curPos)
-				local curWord = editor:textrange(leftPos, curPos)
-				if keyInTable(Define_Funcs, curWord) then
-					editor:CallTipShow(leftPos, Define_Funcs[curWord])
-				end
-			end
-		end
-	elseif curChar == ")" then
-		local curStyle = editor.StyleAt[editor.CurrentPos]
-		if not isInTable(ignoreStyles, curStyle) then
-			closeBrace("(", ")")
-		end
-	elseif curChar == "[" then
-		local curStyle = editor.StyleAt[editor.CurrentPos-2]
-		if not isInTable(ignoreStyles, curStyle) then
-			Pairing("[", "]")
-		end
-	elseif curChar == "]" then
-		local curStyle = editor.StyleAt[editor.CurrentPos]
-		if not isInTable(ignoreStyles, curStyle) then
-			closeBrace("[", "]")
-		end
-	elseif curChar == "," then
+	elseif curChar == "," and curKey == "," then
 		local curStyle = editor.StyleAt[editor.CurrentPos]
 		if not isInTable(ignoreStyles, curStyle) then
 			editor:AddText(" ")
@@ -260,7 +195,7 @@ function OnChar(curChar)
 			end
 		end
 	end
-	if not editor:AutoCActive() then
+	if not editor:AutoCActive() and NoCalltip == false then
 		editor.AutoCIgnoreCase = IGNORE_CASE
 		local pos = editor.CurrentPos
 		local startPos = editor:WordStartPosition(pos, true)
@@ -289,57 +224,33 @@ function CancelAutoComplete()
 	return true
 end
 
-function Pairing(BeforeChar, AfterChar)
-	if #Selected_Text == 0 then
-		local curChar = str(editor.CharAt[editor.CurrentPos])
-		if string.find(curChar, "[%s%W]") or curChar == "" then
-			editor:AddText(AfterChar) editor:GotoPos(editor.CurrentPos-1)
-		end
-	else
-		if string.find(Selected_Text, "\n") or BeforeChar == "{" then
-			editor:HomeExtend() editor:ReplaceSel(BeforeChar) editor:LineEndExtend() editor:NewLine()
-			local curPos = editor.CurrentPos
-			if BeforeChar == "{" then
-				editor:AddText(string.gsub(Selected_LineText, "\n", "\n	") .. AfterChar)
-			else
-				editor:AddText("	" .. string.gsub(Selected_LineText, "\n", "\n	") .. AfterChar)
-				curPos = curPos + 1
+function closeBrace(closeChar)
+	local openChar = "("
+	if closeChar == "}" then openChar = "{"
+	elseif closeChar == "]" then openChar = "[" end
+	local ignoreStyles = ignoreStylesTable[editor.Lexer]
+	local curPos = editor.CurrentPos
+	local curLineNum = editor:LineFromPosition(curPos)
+	local LineStartPos = editor:PositionFromLine(curLineNum)
+	local LineEndPos = editor.LineEndPosition[curLineNum]
+	local WhilePos = LineStartPos
+	local WhileChar = ""
+	local BraceState = 0
+	
+	while true do
+		if not isInTable(ignoreStyles, editor.StyleAt[WhilePos]) then
+			WhileChar = str(editor.CharAt[WhilePos])
+			if WhileChar == openChar then
+				BraceState = BraceState + 1
+			elseif WhileChar == closeChar then
+				BraceState = BraceState - 1
 			end
-			editor:Home() editor:BackTab() editor:LineUp() editor:LineEnd() editor:SetSel(editor.CurrentPos, curPos)
-		else
-			editor:AddText(Selected_Text .. AfterChar) editor:WordLeft() editor:GotoPos(Selected_EndPos)
-			editor.Anchor = Selected_StartPos + 1
-			editor.CurrentPos = Selected_EndPos + 1
 		end
-		editor:EndUndoAction()
+		WhilePos = WhilePos + 1
+		if WhilePos > LineEndPos then break end
 	end
-end
-
-function closeBrace(openChar, closeChar)
-	if str(editor.CharAt[editor.CurrentPos]) == closeChar then
-		local ignoreStyles = {SCE_AHK_COMMENTLINE, SCE_AHK_COMMENTBLOCK, SCE_AHK_STRING, SCE_AHK_ERROR, SCE_AHK_ESCAPE}
-		local curPos = editor.CurrentPos
-		local curLine = editor:LineFromPosition(curPos)
-		local startPos = editor:PositionFromLine(curLine)
-		local EndPos = editor:PositionFromLine(curLine + 1)
-		local thisPos = startPos
-		local thisChar = ""
-		local braceState = 0
-		while true do
-			if not isInTable(ignoreStyles, editor.StyleAt[thisPos]) then
-				thisChar = str(editor.CharAt[thisPos])
-				if thisChar == openChar then
-					braceState = braceState + 1
-				elseif thisChar == closeChar then
-					braceState = braceState - 1
-				end
-			end
-			thisPos = thisPos + 1
-			if thisPos > EndPos then break end
-		end
-		if braceState == -1 then
-			editor:DeleteBack() editor:GotoPos(curPos)
-		end
+	if BraceState == -1 then
+		editor:DeleteBack() editor:GotoPos(curPos)
 	end
 end
 
@@ -347,58 +258,69 @@ end
 -- OnKey event
 -- ====================================== --
 
-function OnKey(key)
+function OnKey(key, Shift)
 	if key == 8 then
+		local ignoreStyles = ignoreStylesTable[editor.Lexer]
 		local curPos = editor.CurrentPos
-		if RTprevChar == "(" then
-			DelEmptyBrace_Closer(")", curPos)
-		elseif RTprevChar == ")" then
-			DelEmptyBrace_Opener("(", curPos)
-		elseif RTprevChar == "{" then
-			DelEmptyBrace_Closer("}", curPos)
-		elseif RTprevChar == "}" then
-			DelEmptyBrace_Opener("{", curPos)
-		elseif RTprevChar == "[" then
-			DelEmptyBrace_Closer("]", curPos)
-		elseif RTprevChar == "]" then
-			DelEmptyBrace_Opener("[", curPos)
-		elseif RTprevChar == "	" then
-			local thisPos = curPos - 1
-			local thisChar = 0
-			local BraceState = false
-			while true do
-				thisChar = editor.CharAt[thisPos]
-				if thisChar == 9 or thisChar == 10 or thisChar == 13 or thisChar == 32 then
-					thisPos = thisPos - 1
-					if thisPos == 0 then break end
-				elseif thisChar == 123 then
-					BraceState = true break
-			else break end end
-			if BraceState then
-				local PairPos = editor:BraceMatch(thisPos, 0)
-				if PairPos ~= -1 and string.find(editor:textrange(thisPos+ 1, PairPos), "^%s*$") then
-					editor:DeleteRange(thisPos + 1, PairPos - thisPos)
+		if not isInTable(ignoreStyles, editor.StyleAt[curPos - 1]) then
+			if RTprevChar == "(" then
+				DelEmptyBrace_Closer(")", curPos)
+			elseif RTprevChar == ")" then
+				DelEmptyBrace_Opener("(", curPos)
+			elseif RTprevChar == "{" then
+				DelEmptyBrace_Closer("}", curPos)
+			elseif RTprevChar == "}" then
+				DelEmptyBrace_Opener("{", curPos)
+			elseif RTprevChar == "[" then
+				DelEmptyBrace_Closer("]", curPos)
+			elseif RTprevChar == "]" then
+				DelEmptyBrace_Opener("[", curPos)
+			elseif RTprevChar == "	" then
+				local thisPos = curPos - 1
+				local thisChar = 0
+				local BraceState = false
+				while true do
+					thisChar = editor.CharAt[thisPos]
+					if thisChar == 9 or thisChar == 10 or thisChar == 13 or thisChar == 32 then
+						thisPos = thisPos - 1
+						if thisPos == 0 then break end
+					elseif thisChar == 123 then
+						BraceState = true break
+				else break end end
+				if BraceState then
+					local PairPos = editor:BraceMatch(thisPos, 0)
+					if PairPos ~= -1 and string.find(editor:textrange(thisPos+ 1, PairPos), "^%s*$") then
+						editor:DeleteRange(thisPos + 1, PairPos - thisPos)
+					end
 				end
 			end
 		end
-	elseif key == 57 or key == 219 then
-		Selected_Text = editor:GetSelText()
-		if #Selected_Text ~= 0 then
-			editor:BeginUndoAction()
-			UndoState = true
-			Selected_StartPos = editor.Anchor
-			Selected_EndPos = editor.CurrentPos
-			if string.find(Selected_Text, "\n") then
-				Selected_LineText = ""
-				local LoopLine = editor:LineFromPosition(editor.SelectionStart)
-				while LoopLine <= editor:LineFromPosition(editor.SelectionEnd) do
-					Selected_LineText = Selected_LineText .. editor:GetLine(LoopLine)
-					LoopLine = LoopLine + 1
-				end
-			else
-				Selected_LineText = editor:GetLine(editor:LineFromPosition(Selected_StartPos))
-			end
+	elseif key == 57 and Shift == true then
+		NoCalltip = false
+		OnParenthesis(0)
+		curKey = "("
+	elseif key == 219 then
+		if Shift then
+			OnParenthesis(1)
+			curKey = "{"
+		else
+			OnParenthesis(2)
+			curKey = "["
 		end
+	elseif key == 48 and Shift == true then
+		curKey = ")"
+	elseif key == 221 then
+		if Shift then
+			curKey = "}"
+		else
+			curKey = "]"
+		end
+	elseif key == 188 and Shift == false then
+		curKey = ","
+	elseif key == 13 then
+		curKey = "\n"
+	else
+		curKey = ""
 	end
 end
 
@@ -442,6 +364,172 @@ function DelEmptyBrace_Opener(char, curPos)
 			end
 		end
 	end
+end
+
+-- ================================================== --
+-- Parenthesis Auto Indent
+-- ================================================== --
+
+function OnParenthesis(thisCase)
+	local thisChar = "(" local pairChar = ")"
+	if thisCase == 1 then thisChar = "{" pairChar = "}"
+	elseif thisCase == 2 then thisChar = "[" pairChar = "]" end
+	local ignoreStyles = ignoreStylesTable[editor.Lexer]
+	local curPos = editor.CurrentPos
+	local Selected_Text = editor:GetSelText()
+	editor:BeginUndoAction()
+	if IgnoreCase(curPos) or IgnoreCase(editor.Anchor) then
+		editor:ReplaceSel(thisChar)
+	else
+		if #Selected_Text == 0 then
+			if thisCase == 1 then
+				local curLineNum = editor:LineFromPosition(curPos)
+				local curLinePos = editor:PositionFromLine(curLineNum)
+				local curText = editor:textrange(curLinePos, curPos)
+				local prevLineNum = curLineNum - 1
+				local prevLineText = editor:GetLine(prevLineNum)
+				local BraceCase = 0
+				local BlockNewLine = false
+				local IndentSpace = ""
+				if string.find(curText, "^%s*$") then
+					BraceCase = CaseCheck(prevLineText)
+					BlockNewLine = true
+					IndentSpace = string.gsub(prevLineText, "^(%s*).*", "%1")
+				else
+					BraceCase = CaseCheck(curText)
+					IndentSpace = string.gsub(curText, "^(%s*).*", "%1")
+				end
+				if BraceCase == 0 then
+					editor:AddText("{}")
+					editor:GotoPos(editor.CurrentPos - 1)
+				else
+					if BlockNewLine == true then
+						editor:HomeExtend() editor:AddText(IndentSpace .. "{") editor:NewLine()
+					else
+						if BraceCase == 2 then
+							editor:AddText("\r\n" .. IndentSpace .. "{\r\n" .. IndentSpace .. "	")
+						else
+							editor:AddText("{\r\n" .. IndentSpace .. "	")
+						end
+					end
+					local ComebackPos = editor.CurrentPos
+					if BraceCase == 2 then
+						editor:AddText("Case ")
+						ComebackPos = editor.CurrentPos
+					elseif BraceCase == 3 then
+						editor:AddText("/* write your calltip here") editor:NewLine()
+						editor:NewLine() editor:AddText("*/") editor:NewLine()
+						ComebackPos = editor.CurrentPos
+					end
+					editor:AddText("\r\n" .. IndentSpace .. "}") editor:GotoPos(ComebackPos)
+				end
+			else
+				local curChar = str(editor.CharAt[editor.CurrentPos])
+				if string.find(str(editor.CharAt[curPos]), "[%s%W]") or curChar == "" then
+					editor:InsertText(curPos, pairChar) editor:AddText(thisChar)
+				else editor:AddText(thisChar)
+				end
+				if thisCase == 0 then
+					scite.MenuCommand(IDM_SHOWCALLTIP)
+					if editor:CallTipActive() == false then
+						local curPos = editor.CurrentPos - 1
+						local WordStartPos = editor:WordStartPosition(curPos)
+						local curWord = editor:textrange(WordStartPos, curPos)
+						if keyInTable(Define_Funcs, curWord) then
+							editor:CallTipShow(WordStartPos, Define_Funcs[curWord])
+						end
+					end
+				end
+			end
+		else
+			SetSel = true NoCalltip = true
+			local SelStartPos = editor.SelectionStart
+			local SelEndPos = editor.SelectionEnd
+			local SelStartLine = editor:LineFromPosition(SelStartPos)
+			local SelEndLine = editor:LineFromPosition(SelEndPos)
+			if thisCase == 2 or string.find(Selected_Text, "\n") == nil then
+				if thisCase == 1 then
+					local curLineNum = editor:LineFromPosition(curPos)
+					local prevLineText = editor:GetLine(curLineNum - 1)
+					if isStartBlockStatement(prevLineText) then
+						IndentSpace = string.gsub(prevLineText, "^(%s*).*", "%1")
+					else
+						IndentSpace = string.gsub(editor:GetLine(curLineNum), "^(%s*).*", "%1")
+					end
+					editor:SetSel(editor:PositionFromLine(curLineNum), editor.LineEndPosition[curLineNum])
+					editor:ReplaceSel(IndentSpace .. "{\r\n	" .. IndentSpace
+						.. string.gsub(editor:textrange(editor.LineIndentPosition[curLineNum], editor.LineEndPosition[curLineNum])
+						, "\n", "\n	") .. "\r\n" .. IndentSpace .. "}")
+					SelStart = editor:PositionFromLine(curLineNum + 1)
+					SelEnd = editor.LineEndPosition[curLineNum + 1]
+				else
+					editor:InsertText(SelEndPos, pairChar)
+					editor:InsertText(SelStartPos, thisChar)
+					if curPos == SelEndPos then
+						SelStart = SelStartPos + 1
+						SelEnd = SelEndPos + 1
+					else
+						SelStart = SelEndPos + 1
+						SelEnd = SelStartPos + 1
+					end
+				end
+			else
+				local MinIndentSpace = GetMinIndent(SelStartLine, SelEndLine)
+				if thisCase == 0 then
+					editor:InsertText(editor:PositionFromLine(SelEndLine + 1), MinIndentSpace .. pairChar .. "\r\n")
+					editor:InsertText(editor:PositionFromLine(SelStartLine), MinIndentSpace .. thisChar .. "\r\n")
+				else
+					local prevLineText = editor:GetLine(SelStartLine - 1)
+					editor:SetSel(editor:PositionFromLine(SelStartLine), editor.LineEndPosition[SelEndLine])
+					if isStartBlockStatement(prevLineText) then
+						local IndentSpace = string.gsub(prevLineText, "^(%s*).*", "%1")
+						editor:ReplaceSel(IndentSpace .. "{\r\n"
+							.. string.gsub(string.gsub(editor:GetSelText(), "^" .. MinIndentSpace, "	" .. IndentSpace)
+							, "\n" .. MinIndentSpace, "\n	" .. IndentSpace) .. "\r\n" .. IndentSpace .. "}")
+					else
+						editor:ReplaceSel(MinIndentSpace .. "{\r\n"
+							.. string.gsub(string.gsub(editor:GetSelText(), "^" .. MinIndentSpace, "	" .. MinIndentSpace)
+							, "\n" .. MinIndentSpace, "\n	" .. MinIndentSpace) .. "\r\n" .. MinIndentSpace .. "}")
+					end
+				end
+				SelStart = editor:PositionFromLine(SelStartLine + 1)
+				SelEnd = editor.LineEndPosition[SelEndLine + 1]
+			end
+		end
+	end
+	editor:EndUndoAction()
+end
+
+function IgnoreCase(curPos)
+	local ignoreStyles = ignoreStylesTable[editor.Lexer]
+	if isInTable(ignoreStyles, editor.StyleAt[curPos]) then
+		if isInTable(ignoreStyles, editor.StyleAt[curPos - 1]) then return true
+		else return false end
+	end
+end
+
+function CaseCheck(line)
+	if isStartBlockStatement(line) then return 1
+	elseif isSwitchLine(line) then return 2
+	elseif isFunctionLine(line) then return 3
+	else return 0
+	end
+end
+
+function GetMinIndent(StartLine, EndLine)
+	local MinIndentation = 1024
+	local MinIndentSpace = ""
+	local curWhileLine = StartLine
+	local curIndent = 0
+	while curWhileLine <= EndLine do
+		curIndent = editor.LineIndentation[curWhileLine]
+		if curIndent < MinIndentation then
+			MinIndentation = curIndent
+			MinIndentSpace = string.gsub(editor:GetLine(curWhileLine), "^([ 	]*).*", "%1")
+		end
+		curWhileLine = curWhileLine + 1
+	end
+	return MinIndentSpace
 end
 
 -- ================================================== --
@@ -496,7 +584,7 @@ function Func_Set()
 			Funcs = Funcs .. string.lower(word) .. " "
 			index = index + 1
 		end
-		local file, err = io.open(props['SciteUserHome'] .. "\\define_func.properties", "w")
+		local file = io.open(props['SciteUserHome'] .. "\\define_func.properties", "w")
 		file:write("define.func=\\\n" .. Funcs)
 		file:close()
 	end
@@ -824,8 +912,12 @@ function isFinallyAllowBraces(line)
 		or string.find(line, "^%s*}%s*"..finallyPat.."%s*{%s*$") ~= nil
 end
 
-function isFuncDef(line)
-	return string.find(line, "^%s*"..varCharPat.."+%(.*%)%s*{%s*$") ~= nil
+function isFunctionLine(line)
+	if string.find(line, "^%s*[%w_]+%([^%)]*%)%s*$") ~= nil then
+		local word = string.gsub(line, "^%s*([%w_]+).*", "%1")
+		if string.find(word, "^" .. ifPat .."$") ~= nil or string.find(word, "^" .. whilePat .."$") ~= nil then
+		return false else return true end
+	end return false
 end
 
 function isSingleLineIndentStatement(line)
@@ -836,7 +928,7 @@ end
 
 function isIndentStatement(line)
 	return isOpenBraceLine(line) or isIfLine(line) or isWhileLine(line) or isForLine(line)
-		or isLoopLineAllowBraces(line) or isElseLineAllowBraces(line) or isFuncDef(line)
+		or isLoopLineAllowBraces(line) or isElseLineAllowBraces(line)
 		or isTryLineAllowBraces(line) or isCatchLineAllowBraces(line) or isFinallyAllowBraces(line)
 		or isCaseLine(line) or isClassLineAllowBraces(line)
 end
@@ -1161,8 +1253,12 @@ end
 -- Globals for extensions
 g_SettingsDir = props['SciteUserHome'].."/Settings"
 
+local jgslua = props['SciteUserHome'].."/UnofficialLua.lua"
 local userlua = props['SciteUserHome'].."/UserLuaScript.lua"
 local extlua = props['SciteUserHome'].."/_extensions.lua"
+if FileExists(jgslua) then
+	dofile(jgslua)
+end
 if FileExists(userlua) then
 	dofile(userlua)
 end

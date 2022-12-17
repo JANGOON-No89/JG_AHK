@@ -23,6 +23,8 @@ FileCreateDir, %A_Temp%\SciTE_UnofficalPatch\UserHome\Settings
 FileCreateDir, %A_Temp%\SciTE_UnofficalPatch\UserHome\tools\Lib
 FileCreateDir, %A_Temp%\SciTE_UnofficalPatch\UserHome\tools\Banner
 
+FileInstall, UserLuaScript.lua, %A_Temp%\UserLuaScript.lua, 1
+
 FileInstall, LocalHome\ahk.api, %A_Temp%\SciTE_UnofficalPatch\LocalHome\ahk.api, 1
 FileInstall, LocalHome\ahk.keywords.properties, %A_Temp%\SciTE_UnofficalPatch\LocalHome\ahk.keywords.properties, 1
 FileInstall, LocalHome\ahk.lua, %A_Temp%\SciTE_UnofficalPatch\LocalHome\ahk.lua, 1
@@ -32,7 +34,7 @@ FileInstall, UserHome\$PATCHVER, %A_Temp%\SciTE_UnofficalPatch\UserHome\$PATCHVE
 FileInstall, UserHome\Autorun.ahk, %A_Temp%\SciTE_UnofficalPatch\UserHome\Autorun.ahk, 1
 FileInstall, UserHome\define_func.properties, %A_Temp%\SciTE_UnofficalPatch\UserHome\define_func.properties, 1
 FileInstall, UserHome\SciTEUser.properties, %A_Temp%\SciTE_UnofficalPatch\UserHome\SciTEUser.properties, 1
-FileInstall, UserHome\UserLuaScript.lua, %A_Temp%\SciTE_UnofficalPatch\UserHome\UserLuaScript.lua, 1
+FileInstall, UserHome\UnofficialLua.lua, %A_Temp%\SciTE_UnofficalPatch\UserHome\UnofficialLua.lua, 1
 FileInstall, UserHome\UserToolbar.properties, %A_Temp%\SciTE_UnofficalPatch\UserHome\UserToolbar.properties, 1
 
 FileInstall, UserHome\Settings\PatchLog.ini, %A_Temp%\SciTE_UnofficalPatch\UserHome\Settings\PatchLog.ini, 1
@@ -249,7 +251,9 @@ CountURL := "http://jgstyler.ivyro.net/unoffpatch.php"
 if (FileExist(SciteUserHome "\$PATCHVER"))
 	goto, PatchUpdate
 else
-	URLDownloadToFile, %CountURL%, %A_Temp%\SciTE_UnofficalPatch\$PATCH
+	URLDownloadToFile, %CountURL%, %A_Temp%\$PATCH
+if (FileExist(A_Temp "\SciTE_UnofficalPatch\$PATCH"))
+	FileDelete, % A_Temp "\SciTE_UnofficalPatch\$PATCH"
 
 PreviewHLColor := [0, 255, 0, 150], PreviewHLHex := "00ff00"
 if (UsersHLSet != "")
@@ -507,6 +511,12 @@ Loop, Files, %A_Temp%\SciTE_UnofficalPatch\*, R
 }
 if (FileExist(SciteUserHome "\PATCHVER"))
 	FileDelete, % SciteUserHome "\PATCHVER"
+if (FileExist(SciteDefaultHome "\PatchBackup\UserHome\UserLuaScript.lua"))
+	FileMove, % SciteDefaultHome "\PatchBackup\UserHome\UserLuaScript.lua", % SciteUserHome "\UserLuaScript.lua", 1
+else
+	FileMove, % A_Temp "\UserLuaScript.lua", % SciteUserHome "\UserLuaScript.lua", 1
+MsgBox, 64, Success, % "패치가 완료되었습니다.`n에디터를 재실행하면 패치가 적용됩니다."
+ExitApp
 return
 
 ColorSlider:

@@ -17,6 +17,8 @@ IniRead, Auto, % SPath "\PatchLog.ini", Settings, ShowNext
 Manual = %1%
 if (Auto = 1 && !Manual)
 	ExitApp
+if (WinExist("Unofficial Patch Update"))
+	ExitApp
 
 PatchLog =
 (
@@ -61,6 +63,9 @@ Case, Default문 입력 후 Enter를 누르면 자동으로 들여쓰기가 적용되며,
 	<li>선택단어 강조 기능 추가 </li><span>[ v0.1 ]</span>
 	<pre>현재 캐럿(키보드 커서)이 위치한 단어, 혹은 드래그로 선택된 단어와 중복이 되는 단어를 모두 표시하며, 강조된 단어가 존재하는 모든 줄을 줄번호 영역에 표시합니다.
 단, 글자는 같더라도 에디터에 표시되는 스타일이 다르면 같은 단어로 취급하지 않습니다.</pre>
+	<li>선택 문장 괄호 씌우기 </li><span>[ v0.12 ]</span>
+	<pre>단어 혹은 문장을 드래그한 후 괄호를 입력하면 해당 문장을 괄호로 덮습니다.
+덮어지는 방식은 입력한 괄호의 형식에 따릅니다.</pre>
 	<li>템플릿 시스템 추가 </li><span>[ v0.1 ]</span>
 	<pre>문서를 비우면 미리 작성한 템플릿의 내용이 자동으로 입력됩니다.</pre>
 </ul>
@@ -119,14 +124,9 @@ Ctrl + Shift + Z 키로도 동작하게 되었습니다.</pre>
 <p></p>
 <div class="title">알려진 문제점</div>
 <ul>
-	<li>외국어 중복 입력 </li><span>[ v0.1 ]</span>
-	<pre>영어가 아닌 외국어(한글, 일본어 등)를 입력시 때때로 영어를 제외한 모든 외국어 글자가 두세번씩 중복입력되는 현상이 발생합니다.
-해당 현상은 에디터를 재실행 하는 것으로 해결이 가능하며, 재실행하지 않으면 영원히 지속되는것으로 확인됩니다.</pre>
 	<li>선택 단어 강조 </li><span>[ v0.1 ]</span>
 	<pre>더블클릭 혹은 글자를 드래그하여 선택한 단어는 단어가 강조되더라도 줄번호 옆에 그 위치가 표시되지 않는 현상이 발생합니다.
 단, 그 상태에서 스크롤을 움직이면 정상적으로 표시가 나타나며, 더블클릭, 드래그가 아닌 입력지연으로 강조된 단어 또한 정상적으로 표시됩니다.</pre>
-	<li>잘못된 자동 들여쓰기 </li><span>[ v0.1 ]</span>
-	<pre>일부 구문에서 문맥을 잘못 감지하여 문맥에 맞지않는 줄나눔 혹은 들여쓰기가 적용되는 현상이 발생합니다.</pre>
 </ul>
 <p></p>
 <div class="title">업데이트</div>
@@ -137,6 +137,12 @@ Ctrl + Shift + Z 키로도 동작하게 되었습니다.</pre>
 	<pre>- 패치 프로그램과 패치로 추가되는 기능들의 일부 오류 수정
 - 자동 들여쓰기 문맥 감지 기능 사아아알짝 개선
 - 자동 백업시 오류메세지 나타나던 증상 해결 (피드백 패치)</pre>
+	<li>v0.12</li>
+	<pre>- RestoreManager(파일 복원)에서 백업 설정을 변경할 수 있는 기능 추가 (피드백 패치)
+- 괄호를 지울때 쌍이 되는 괄호가 같이 지워지는 기능이 주석, 문자열에서도 실행되던 문제 해결
+- 자동 들여쓰기의 실행 로직 변경
+    이로 인해 외국어 중복 입력, 잘못된 자동 들여쓰기, undo 지점 꼬임 증상,
+    if, while문에서 콜팁입력 안내문이 입력되던 문제가 해결되었습니다. (아마도)</pre>
 </ul>
 <p></p>
 <div class="title"></div>
@@ -151,7 +157,7 @@ wb.Navigate("about:blank")
 while (wb.readyState != 4 || wb.busy)
 	Sleep, -1
 wb.document.write(PatchLog)
-Gui, Add, Link, w310, 자세한 사용법은 <a href="https://jg-no89.tistory.com/4">제작자 블로그</a>에서 확인할 수 있습니다.
+Gui, Add, Link, w400, 각 기능들의 자세한 사용법은 <a href="https://jg-no89.tistory.com/4">제작자 블로그</a>에서 확인할 수 있습니다.
 Gui, Add, Checkbox, % "x470 yp w160 Right vShowNext " . (Auto = 1 ? "Checked" : ""), 다음 실행부터 보지 않음
 Gui, Show, , PatchLog
 OnMessage(0x200, "Hover")
