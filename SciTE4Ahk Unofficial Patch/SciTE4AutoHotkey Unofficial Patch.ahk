@@ -515,6 +515,7 @@ if (FileExist(SciteDefaultHome "\PatchBackup\UserHome\UserLuaScript.lua"))
 	FileMove, % SciteDefaultHome "\PatchBackup\UserHome\UserLuaScript.lua", % SciteUserHome "\UserLuaScript.lua", 1
 else
 	FileMove, % A_Temp "\UserLuaScript.lua", % SciteUserHome "\UserLuaScript.lua", 1
+FileDelete, % CheckFile
 MsgBox, 64, Success, % "패치가 완료되었습니다.`n에디터를 재실행하면 패치가 적용됩니다."
 ExitApp
 return

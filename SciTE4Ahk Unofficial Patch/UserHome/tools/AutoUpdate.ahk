@@ -35,7 +35,7 @@ if (scite.ResolveProp("patch.updates") = 1)
 	Elements := Get_Elements("https://github.com/JANGOON-No89/JG_AHK/releases")
 	if (Elements != "")
 	{
-		RegExMatch(Elements, ">[\n\s]*(v[0-9.]*)[\n\s]*<", Releases_ver) ? Releases_ver := Releases_ver1 : false
+		RegExMatch(Elements, ">[\n\s]*v([0-9.]*)[\n\s]*<", Releases_ver) ? Releases_ver := Releases_ver1 : false
 		if (Current_ver != Releases_ver)
 		{
 			MsgBox, 36, Unofficial Patch Update, 비공식 패치의 새 버전이 있습니다.`n지금 업데이트 하시겠습니까?
