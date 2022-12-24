@@ -158,7 +158,10 @@ function OnChar(curChar)
 		if curKey == curChar then
 			local curStyle = editor.StyleAt[editor.CurrentPos]
 			if not isInTable(ignoreStyles, curStyle) then
-				closeBrace(curChar)
+				local curPos = editor.CurrentPos
+				if editor:BraceMatch(curPos, 0) >= 0 then
+					editor:DeleteBack() editor:GotoPos(curPos)
+				end
 			end
 			if curChar == "}" then
 				curStyle = editor.StyleAt[editor.CurrentPos-2]
@@ -224,36 +227,6 @@ function CancelAutoComplete()
 	return true
 end
 
-function closeBrace(closeChar)
-	local openChar = "("
-	if closeChar == "}" then openChar = "{"
-	elseif closeChar == "]" then openChar = "[" end
-	local ignoreStyles = ignoreStylesTable[editor.Lexer]
-	local curPos = editor.CurrentPos
-	local curLineNum = editor:LineFromPosition(curPos)
-	local LineStartPos = editor:PositionFromLine(curLineNum)
-	local LineEndPos = editor.LineEndPosition[curLineNum]
-	local WhilePos = LineStartPos
-	local WhileChar = ""
-	local BraceState = 0
-	
-	while true do
-		if not isInTable(ignoreStyles, editor.StyleAt[WhilePos]) then
-			WhileChar = str(editor.CharAt[WhilePos])
-			if WhileChar == openChar then
-				BraceState = BraceState + 1
-			elseif WhileChar == closeChar then
-				BraceState = BraceState - 1
-			end
-		end
-		WhilePos = WhilePos + 1
-		if WhilePos > LineEndPos then break end
-	end
-	if BraceState == -1 then
-		editor:DeleteBack() editor:GotoPos(curPos)
-	end
-end
-
 -- ====================================== --
 -- OnKey event
 -- ====================================== --
@@ -263,34 +236,16 @@ function OnKey(key, Shift)
 		local ignoreStyles = ignoreStylesTable[editor.Lexer]
 		local curPos = editor.CurrentPos
 		if not isInTable(ignoreStyles, editor.StyleAt[curPos - 1]) then
-			if RTprevChar == "(" then
-				DelEmptyBrace_Closer(")", curPos)
-			elseif RTprevChar == ")" then
-				DelEmptyBrace_Opener("(", curPos)
-			elseif RTprevChar == "{" then
-				DelEmptyBrace_Closer("}", curPos)
-			elseif RTprevChar == "}" then
-				DelEmptyBrace_Opener("{", curPos)
-			elseif RTprevChar == "[" then
-				DelEmptyBrace_Closer("]", curPos)
-			elseif RTprevChar == "]" then
-				DelEmptyBrace_Opener("[", curPos)
-			elseif RTprevChar == "	" then
-				local thisPos = curPos - 1
-				local thisChar = 0
-				local BraceState = false
-				while true do
-					thisChar = editor.CharAt[thisPos]
-					if thisChar == 9 or thisChar == 10 or thisChar == 13 or thisChar == 32 then
-						thisPos = thisPos - 1
-						if thisPos == 0 then break end
-					elseif thisChar == 123 then
-						BraceState = true break
-				else break end end
-				if BraceState then
-					local PairPos = editor:BraceMatch(thisPos, 0)
-					if PairPos ~= -1 and string.find(editor:textrange(thisPos+ 1, PairPos), "^%s*$") then
-						editor:DeleteRange(thisPos + 1, PairPos - thisPos)
+			if isInTable({"(", ")", "{", "}", "[", "]"}, RTprevChar) then
+				DelEmptyParenthesis(RTprevChar, curPos - 1)
+			elseif isInTable({" ", "	", "\r", "\n"}, RTprevChar) then
+				editor:SearchAnchor()
+				local OpenPos = editor:SearchPrev(SCFIND_REGEXP, "[({\[]")
+				if OpenPos >= 0 then
+					if isInTable(ignoreStyles, editor.StyleAt[OpenPos]) then
+						editor:GotoPos(curPos)
+					else
+						DelEmptyParenthesis(str(editor.CharAt[OpenPos]), OpenPos)
 					end
 				end
 			end
@@ -324,45 +279,18 @@ function OnKey(key, Shift)
 	end
 end
 
-function DelEmptyBrace_Closer(char, curPos)
-	if RTcurChar == char then
-		editor:DeleteRange(curPos, 1)
-	else
-		local endPos = curPos
-		local delRange = 2
-		while true do
-			local thisChar = str(editor.CharAt[endPos + 1])
-			if string.find(thisChar, "%s") then
-				endPos = endPos + 1
-				delRange = delRange + 1
-			else
-				if thisChar == char then
-					editor:DeleteRange(curPos, delRange)
-				end
-				break
-			end
-		end
+function DelEmptyParenthesis(DelChar, curPos)
+	local OpenPos = curPos
+	local ClosePos = editor:BraceMatch(OpenPos, 0)
+	local Add = 1
+	if OpenPos > ClosePos then
+		OpenPos = ClosePos
+		ClosePos = curPos
+		Add = 0
 	end
-end
-
-function DelEmptyBrace_Opener(char, curPos)
-	local thisPos = curPos - 2
-	if str(editor.CharAt[thisPos]) == "(" then
-		editor:DeleteRange(thisPos, 1)
-	else
-		local delRange = 1
-		while true do
-			local thisChar = str(editor.CharAt[thisPos])
-			if string.find(thisChar, "%s") then
-				thisPos = thisPos - 1
-				delRange = delRange + 1
-			else
-				if thisChar == char then
-					editor:DeleteRange(thisPos, delRange)
-				end
-				break
-			end
-		end
+	local text = editor:textrange(OpenPos + 1, ClosePos)
+	if #text == 0 or string.find(text, "%S") == nil then
+		editor:DeleteRange(OpenPos + Add, ClosePos - OpenPos)
 	end
 end
 

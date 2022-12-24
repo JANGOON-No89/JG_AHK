@@ -15,10 +15,16 @@ SciteUserHome := Scite.UserDir
 SPath := SciteUserHome . "\Settings"
 IniRead, Auto, % SPath "\PatchLog.ini", Settings, ShowNext
 Manual = %1%
-if (Auto = 1 && !Manual)
+if (Auto = 1 || !Manual)
 	ExitApp
 if (WinExist("Unofficial Patch Update"))
 	ExitApp
+
+if (!FileExist("C:\Windows\Fonts\NanumGothic.ttf"))
+{
+	Font := A_ScriptDir "\NanumGothic.ttf"
+	DllCall("AddFontResource", str, Font)
+}
 
 PatchLog =
 (
@@ -31,6 +37,17 @@ PatchLog =
 	pre {width: 100`%; word-wrap: break-word; color: black; font-size: 10pt;padding-left: 10px; margin: 3px 20px 10px 0px; line-height: 13pt;}
 </style>
 <html>
+<div class="title">v0.13 최신 변경사항</div>
+<ul>
+	<li>오류 해결</li>
+    <pre>1. 줄 이동 기능이 선택 내용에 빈 줄이 포함된 경우 정상적으로 동작하지 않던 문제를 해결
+2. 빈 줄에 닫는 괄호 ")}]"만 단독으로 입력시 오류가 나던 문제를 해결(피드백 패치)
+3. 괄호 자동 닫기, 빈 괄호 자동 제거 기능이 가끔씩 오작동하던 문제를 해결
+4. ahk파일의 연결프로그램이 SciTE에디터일 경우 4개의 자동실행 스크립트가 제대로 실행되지
+    않고, SciTE에디터에 새 탭으로 열리던 문제를 해결</pre>
+	<li>UI 개선</li>
+	<pre>패치 로그가 개발자 의도대로 나눔고딕 글꼴로 표시되도록 변경하였습니다.</pre>
+</ul>
 <div class="title">기능 개선 및 강화</div>
 <ul>
 	<li>파일 백업 기능 개선 및 복원 기능 추가 </li><span>[ v0.1 ]</span>
@@ -143,6 +160,13 @@ Ctrl + Shift + Z 키로도 동작하게 되었습니다.</pre>
 - 자동 들여쓰기의 실행 로직 변경
     이로 인해 외국어 중복 입력, 잘못된 자동 들여쓰기, undo 지점 꼬임 증상,
     if, while문에서 콜팁입력 안내문이 입력되던 문제가 해결되었습니다. (아마도)</pre>
+	<li>v0.13</li>
+	<pre>- 줄 이동 기능이 선택 내용에 빈 줄이 포함된 경우 정상적으로 동작하지 않던 문제를 해결
+- 괄호 자동 닫기, 빈 괄호 자동 제거 기능의 로직 변경
+    이로 인해 닫는 괄호 ")}]"가 단독으로 입력되지 않던 문제가 해결되었으며(피드백 패치)
+    그 외에 가끔씩 일어나는 자잘한 오류들이 해결되었습니다.
+- ahk파일의 연결프로그램이 SciTE에디터일 경우 자동실행 스크립트가 실행되지 않던 문제를 해결
+- PatchLog의 글꼴이 개발자 의도대로 나눔고딕으로 표시되도록 변경</pre>
 </ul>
 <p></p>
 <div class="title"></div>

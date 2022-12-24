@@ -66,15 +66,14 @@ function MultipleLinesMove(AfterLine, SelectionStartLine, SelectionEndLine)
 		local AfterIndent = string.sub(AfterLineText, string.find(AfterLineText, "^[ 	]*"))
 		if SameIndent then
 			editor:SetSel(editor.LineEndPosition[SelectionEndLine], editor:PositionFromLine(SelectionStartLine))
-			editor:ReplaceSel(string.gsub(string.gsub(editor:GetSelText(), "^%s*", AfterIndent), "\n%s*", "\n" .. AfterIndent))
+			editor:ReplaceSel(string.gsub(string.gsub(editor:GetSelText(), "^[ 	]*", AfterIndent), "\n[ 	]*", "\n" .. AfterIndent))
 			editor:SetSel(editor.LineEndPosition[SelectionEndLine], editor:PositionFromLine(SelectionStartLine))
 		else
 			editor:SetSel(editor.LineEndPosition[SelectionEndLine], editor:PositionFromLine(SelectionStartLine))
-			editor:ReplaceSel(string.gsub(string.gsub(editor:GetSelText(), "^" .. MinIndent .. "(%s*)", AfterIndent .. "%1"), "\n".. MinIndent .."(%s*)", "\n" .. AfterIndent .. "%1"))
+			editor:ReplaceSel(string.gsub(string.gsub(editor:GetSelText(), "^" .. MinIndent .. "([ 	]*)", AfterIndent .. "%1"), "\n".. MinIndent .."([ 	]*)", "\n" .. AfterIndent .. "%1"))
 			editor:SetSel(editor.LineEndPosition[SelectionEndLine], editor:PositionFromLine(SelectionStartLine))
 		end
 	end
-
 end
 
 function LineMove(curLine, AfterLine)

@@ -2,8 +2,8 @@
 ; SciTE4AutoHotkey Unofficial Patch
 ; Developed by JANGOON
 ; Developed on 2022.12.02
-; Version : v0.12
-; Update : 2022.12.17
+; Version : v0.13
+; Update : 2022.12.24
 ; Blog : https://jg-no89.tistory.com/
 ; GitHub : https://github.com/JANGOON-No89/JG_AHK
 ;
@@ -49,6 +49,7 @@ FileInstall, UserHome\tools\ColorAssistant.ahk, %A_Temp%\SciTE_UnofficalPatch\Us
 FileInstall, UserHome\tools\HLColorSelector.ahk, %A_Temp%\SciTE_UnofficalPatch\UserHome\tools\HLColorSelector.ahk, 1
 FileInstall, UserHome\tools\HotkeyAssistant.ahk, %A_Temp%\SciTE_UnofficalPatch\UserHome\tools\HotkeyAssistant.ahk, 1
 FileInstall, UserHome\tools\KeywordCreator.ahk, %A_Temp%\SciTE_UnofficalPatch\UserHome\tools\KeywordCreator.ahk, 1
+FileInstall, UserHome\tools\NanumGothic.ttf, %A_Temp%\SciTE_UnofficalPatch\UserHome\NanumGothic.ttf, 1
 FileInstall, UserHome\tools\OldBakRemover.ahk, %A_Temp%\SciTE_UnofficalPatch\UserHome\tools\OldBakRemover.ahk, 1
 FileInstall, UserHome\tools\PatchLog.ahk, %A_Temp%\SciTE_UnofficalPatch\UserHome\tools\PatchLog.ahk, 1
 FileInstall, UserHome\tools\PropUpdate.ahk, %A_Temp%\SciTE_UnofficalPatch\UserHome\tools\PropUpdate.ahk, 1
