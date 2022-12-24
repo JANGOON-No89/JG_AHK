@@ -240,13 +240,12 @@ function OnKey(key, Shift)
 				DelEmptyParenthesis(RTprevChar, curPos - 1)
 			elseif isInTable({" ", "	", "\r", "\n"}, RTprevChar) then
 				editor:SearchAnchor()
+				local CharPos = editor:SearchPrev(SCFIND_REGEXP, "[^ 	\r\n]")
 				local OpenPos = editor:SearchPrev(SCFIND_REGEXP, "[({\[]")
-				if OpenPos >= 0 then
-					if isInTable(ignoreStyles, editor.StyleAt[OpenPos]) then
-						editor:GotoPos(curPos)
-					else
-						DelEmptyParenthesis(str(editor.CharAt[OpenPos]), OpenPos)
-					end
+				if OpenPos >= 0 and CharPos == OpenPos and isInTable(ignoreStyles, editor.StyleAt[OpenPos]) == false then
+					DelEmptyParenthesis(str(editor.CharAt[OpenPos]), OpenPos)
+				else
+					editor:GotoPos(curPos)
 				end
 			end
 		end

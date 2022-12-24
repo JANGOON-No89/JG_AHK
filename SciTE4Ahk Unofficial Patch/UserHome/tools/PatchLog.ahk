@@ -15,16 +15,12 @@ SciteUserHome := Scite.UserDir
 SPath := SciteUserHome . "\Settings"
 IniRead, Auto, % SPath "\PatchLog.ini", Settings, ShowNext
 Manual = %1%
-if (Auto = 1 || !Manual)
+if (Auto = 1 && !Manual)
 	ExitApp
 if (WinExist("Unofficial Patch Update"))
 	ExitApp
-
 if (!FileExist("C:\Windows\Fonts\NanumGothic.ttf"))
-{
-	Font := A_ScriptDir "\NanumGothic.ttf"
-	DllCall("AddFontResource", str, Font)
-}
+	Font := A_ScriptDir "\NanumGothic.ttf", DllCall("AddFontResource", str, Font)
 
 PatchLog =
 (
