@@ -2,8 +2,8 @@
 ; SciTE4AutoHotkey Unofficial Patch
 ; Developed by JANGOON
 ; Developed on 2022.12.02
-; Version : v0.13
-; Update : 2022.12.24
+; Version : v0.131
+; Update : 2023.01.14
 ; Blog : https://jg-no89.tistory.com/
 ; GitHub : https://github.com/JANGOON-No89/JG_AHK
 ;
@@ -49,7 +49,7 @@ FileInstall, UserHome\tools\ColorAssistant.ahk, %A_Temp%\SciTE_UnofficalPatch\Us
 FileInstall, UserHome\tools\HLColorSelector.ahk, %A_Temp%\SciTE_UnofficalPatch\UserHome\tools\HLColorSelector.ahk, 1
 FileInstall, UserHome\tools\HotkeyAssistant.ahk, %A_Temp%\SciTE_UnofficalPatch\UserHome\tools\HotkeyAssistant.ahk, 1
 FileInstall, UserHome\tools\KeywordCreator.ahk, %A_Temp%\SciTE_UnofficalPatch\UserHome\tools\KeywordCreator.ahk, 1
-FileInstall, UserHome\tools\NanumGothic.ttf, %A_Temp%\SciTE_UnofficalPatch\UserHome\NanumGothic.ttf, 1
+FileInstall, UserHome\tools\NanumGothic.ttf, %A_Temp%\SciTE_UnofficalPatch\UserHome\tools\NanumGothic.ttf, 1
 FileInstall, UserHome\tools\OldBakRemover.ahk, %A_Temp%\SciTE_UnofficalPatch\UserHome\tools\OldBakRemover.ahk, 1
 FileInstall, UserHome\tools\PatchLog.ahk, %A_Temp%\SciTE_UnofficalPatch\UserHome\tools\PatchLog.ahk, 1
 FileInstall, UserHome\tools\PropUpdate.ahk, %A_Temp%\SciTE_UnofficalPatch\UserHome\tools\PropUpdate.ahk, 1
@@ -498,25 +498,33 @@ goto, ButtonNext
 return
 
 PatchUpdate:
-Loop, Files, %A_Temp%\SciTE_UnofficalPatch\*, R
-{
-	if (A_LoopFileName = "SciTEUser.properties")
-		continue
-	if (InStr(A_LoopFileFullPath, "UserHome"))
-		DivPos := InStr(A_LoopFileFullPath, "UserHome")
-		, Target := StrReplace(A_LoopFileFullPath, SubStr(A_LoopFileFullPath, 1, DivPos + 7), SciteUserHome)
-	else
-		DivPos := InStr(A_LoopFileFullPath, "LocalHome")
-		, Target := StrReplace(A_LoopFileFullPath, SubStr(A_LoopFileFullPath, 1, DivPos + 8), SciteDefaultHome)
-	FileCopy, % A_LoopFileFullPath, % Target, 1
-}
-if (FileExist(SciteUserHome "\PATCHVER"))
-	FileDelete, % SciteUserHome "\PATCHVER"
-if (FileExist(SciteDefaultHome "\PatchBackup\UserHome\UserLuaScript.lua"))
-	FileMove, % SciteDefaultHome "\PatchBackup\UserHome\UserLuaScript.lua", % SciteUserHome "\UserLuaScript.lua", 1
+FileRead, curVer, % SciteUserHome "\$PATCHVER"
+if (curVer = "0.13")
+	FileCopy, % A_Temp "\SciTE_UnofficalPatch\LocalHome\ahk.lua", % SciteDefaultHome "\ahk.lua", 1
 else
-	FileMove, % A_Temp "\UserLuaScript.lua", % SciteUserHome "\UserLuaScript.lua", 1
-FileDelete, % CheckFile
+{
+	Loop, Files, %A_Temp%\SciTE_UnofficalPatch\*, R
+	{
+		if (A_LoopFileName = "SciTEUser.properties")
+			continue
+		if (InStr(A_LoopFileFullPath, "UserHome"))
+			DivPos := InStr(A_LoopFileFullPath, "UserHome")
+			, Target := StrReplace(A_LoopFileFullPath, SubStr(A_LoopFileFullPath, 1, DivPos + 7), SciteUserHome)
+		else
+			DivPos := InStr(A_LoopFileFullPath, "LocalHome")
+			, Target := StrReplace(A_LoopFileFullPath, SubStr(A_LoopFileFullPath, 1, DivPos + 8), SciteDefaultHome)
+		FileCopy, % A_LoopFileFullPath, % Target, 1
+	}
+	if (FileExist(SciteUserHome "\PATCHVER"))
+		FileDelete, % SciteUserHome "\PATCHVER"
+	if (FileExist(SciteUserHome "\NanumGothic.ttf"))
+		FileDelete, % SciteUserHome "\NanumGothic.ttf"
+	if (FileExist(SciteDefaultHome "\PatchBackup\UserHome\UserLuaScript.lua"))
+		FileMove, % SciteDefaultHome "\PatchBackup\UserHome\UserLuaScript.lua", % SciteUserHome "\UserLuaScript.lua", 1
+	else
+		FileMove, % A_Temp "\UserLuaScript.lua", % SciteUserHome "\UserLuaScript.lua", 1
+	FileDelete, % CheckFile
+}
 MsgBox, 64, Success, % "패치가 완료되었습니다.`n에디터를 재실행하면 패치가 적용됩니다."
 ExitApp
 return

@@ -232,18 +232,20 @@ end
 -- ====================================== --
 
 function OnKey(key, Shift)
+	if not InAHKLexer() then return false end
 	if key == 8 then
 		local ignoreStyles = ignoreStylesTable[editor.Lexer]
 		local curPos = editor.CurrentPos
-		if not isInTable(ignoreStyles, editor.StyleAt[curPos - 1]) then
+		if #editor:GetSelText() == 0
+			and isInTable(ignoreStyles, editor.StyleAt[curPos - 1]) == false then
 			if isInTable({"(", ")", "{", "}", "[", "]"}, RTprevChar) then
-				DelEmptyParenthesis(RTprevChar, curPos - 1)
+				DelEmptyParenthesis(RTprevChar, curPos - 1, curPos)
 			elseif isInTable({" ", "	", "\r", "\n"}, RTprevChar) then
 				editor:SearchAnchor()
 				local CharPos = editor:SearchPrev(SCFIND_REGEXP, "[^ 	\r\n]")
 				local OpenPos = editor:SearchPrev(SCFIND_REGEXP, "[({\[]")
 				if OpenPos >= 0 and CharPos == OpenPos and isInTable(ignoreStyles, editor.StyleAt[OpenPos]) == false then
-					DelEmptyParenthesis(str(editor.CharAt[OpenPos]), OpenPos)
+					DelEmptyParenthesis(str(editor.CharAt[OpenPos]), OpenPos, curPos)
 				else
 					editor:GotoPos(curPos)
 				end
@@ -278,18 +280,20 @@ function OnKey(key, Shift)
 	end
 end
 
-function DelEmptyParenthesis(DelChar, curPos)
-	local OpenPos = curPos
+function DelEmptyParenthesis(DelChar, CharPos, curPos)
+	local OpenPos = CharPos
 	local ClosePos = editor:BraceMatch(OpenPos, 0)
 	local Add = 1
 	if OpenPos > ClosePos then
 		OpenPos = ClosePos
-		ClosePos = curPos
+		ClosePos = CharPos
 		Add = 0
 	end
 	local text = editor:textrange(OpenPos + 1, ClosePos)
 	if #text == 0 or string.find(text, "%S") == nil then
 		editor:DeleteRange(OpenPos + Add, ClosePos - OpenPos)
+	elseif CharPos ~= 0 then
+		editor:GotoPos(curPos)
 	end
 end
 
