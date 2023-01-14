@@ -159,6 +159,9 @@ function OnChar(curChar)
 			local curStyle = editor.StyleAt[editor.CurrentPos]
 			if not isInTable(ignoreStyles, curStyle) then
 				local curPos = editor.CurrentPos
+				if str(editor.CharAt[curPos]) ~= curKey then
+					curPos = curPos - 1
+				end
 				if editor:BraceMatch(curPos, 0) >= 0 then
 					editor:DeleteBack() editor:GotoPos(curPos)
 				end
